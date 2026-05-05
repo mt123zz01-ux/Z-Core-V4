@@ -1,0 +1,70 @@
+name: Build Z-Core Addon
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: gradle
+
+      - name: Find and unzip project
+        run: |
+          set -e
+
+          ZIP_FILE=$(find . -maxdepth 1 -name "*.zip" | head -n 1)
+
+          if [ -z "$ZIP_FILE" ]; then
+            echo "No zip file found in repository root."
+            exit 1
+          fi
+
+          echo "Using zip: $ZIP_FILE"
+
+          rm -rf work
+          mkdir work
+          unzip -q "$ZIP_FILE" -d work
+
+          PROJECT_DIR=$(find work -name "gradlew" -type f | head -n 1 | xargs dirname)
+
+          if [ -z "$PROJECT_DIR" ]; then
+            echo "Could not find gradlew inside zip."
+            exit 1
+          fi
+
+          echo "PROJECT_DIR=$PROJECT_DIR" >> $GITHUB_ENV
+          echo "Project directory: $PROJECT_DIR"
+
+      - name: Make Gradle wrapper executable
+        run: |
+          chmod +x "$PROJECT_DIR/gradlew"
+
+      - name: Build jar
+        run: |
+          cd "$PROJECT_DIR"
+          ./gradlew clean build --no-daemon --stacktrace
+
+      - name: List jar outputs
+        run: |
+          find "$PROJECT_DIR/build/libs" -type f -name "*.jar" -print
+
+      - name: Upload jar artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: z-core-1.21.11-built-jar
+          path: ${{ env.PROJECT_DIR }}/build/libs/*.jar
+          if-no-files-found: error
