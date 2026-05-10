@@ -1,4 +1,4 @@
-name: Build Jar From Zip
+name: Build Jar From Google Drive
 
 on:
   workflow_dispatch:
@@ -8,13 +8,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Install unzip
-        run: sudo apt update && sudo apt install -y unzip
-
-      - name: Download source zip
+      - name: Install tools
         run: |
-          FILE_ID="1RUCgVpak7CgRYxlxpLv7Ej40SXRL0lVY"
-          wget --no-check-certificate "https://drive.google.com/uc?export=download&id=${FILE_ID}" -O source.zip
+          sudo apt update
+          sudo apt install -y unzip
+          pip install gdown
+
+      - name: Download source
+        run: |
+          gdown --id 1RUCgVpak7CgRYxlxpLv7Ej40SXRL0lVY -O source.zip
+          file source.zip
 
       - name: Unzip source
         run: unzip source.zip -d source
