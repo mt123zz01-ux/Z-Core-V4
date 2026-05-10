@@ -1,4 +1,4 @@
-concurrency: name: Build Jar From Google Drive
+name: Build Jar From Google Drive
 
 on:
   workflow_dispatch:
