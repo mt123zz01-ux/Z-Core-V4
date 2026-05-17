@@ -17,7 +17,7 @@ jobs:
 
       - name: Download source from Google Drive
         run: |
-          gdown "https://drive.google.com/file/d/1T5ec23dYYCfcQDCbLgnM7gB5MgOTPNKh/view?usp=drivesdk" -O source.zip
+          gdown "https://drive.google.com/file/d/1wsgVkTGBuXu8UpklM2bLTWs3JmjnUQur/view?usp=drivesdk" -O source.zip
           file source.zip
           ls -lh source.zip
 
